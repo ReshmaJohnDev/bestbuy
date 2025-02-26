@@ -69,7 +69,7 @@ def process_order(best_buy, store_available_product_list):
 
 
 def list_products(best_buy):
-    """Displays all available products"""
+    """Displays all available products in the store"""
     product_list = best_buy.get_all_products()
     print('_' * 10)
     for index, product in enumerate(product_list):
