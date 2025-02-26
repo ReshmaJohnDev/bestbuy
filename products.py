@@ -1,5 +1,6 @@
 class Product:
-
+    """The Product class represents a specific type of
+     product available in the store"""
     def __init__(self, name, price, quantity):
         """Initiator (constructor) method."""
         if not name or price <= 0 or quantity < 0:
@@ -28,8 +29,10 @@ class Product:
 
     def is_active(self):
         """Returns True if the product is active, otherwise False."""
+        is_active = False
         if self.active:
-            return True
+            is_active = True
+        return is_active
 
 
     def deactivate(self):
@@ -63,6 +66,3 @@ class Product:
         self.quantity -= quantity
         self.set_quantity(self.quantity)
         return total_price
-
-
-
