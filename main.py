@@ -1,6 +1,7 @@
 
 import products
 import store
+import sys
 
 # ANSI color codes for styling
 BRIGHT_CYAN = '\033[96m'
@@ -22,7 +23,7 @@ def start(best_buy):
             print(f"{BRIGHT_GREEN}{option}{RESET}.{menu}")
         print()
         try:
-            user_choice = int(input(f"Please choose a number: "))
+            user_choice = int(input("Please choose a number: "))
             if user_choice == 1:
                     list_products(best_buy)
             elif user_choice == 2:
@@ -31,12 +32,12 @@ def start(best_buy):
                 store_available_product_list = best_buy.get_all_products()
                 process_order(best_buy, store_available_product_list)
             elif user_choice == 4:
-                exit()
+                sys.exit()
             else:
                 print(f"{RED}Invalid input. Please enter valid number.{RESET}\n")
                 continue
-        except ValueError as e:
-            print(f"{RED}{e}{RESET}\n")
+        except ValueError as error_message:
+            print(f"{RED}{error_message}{RESET}\n")
 
 def process_order(best_buy, store_available_product_list):
     """Handles the order process, allowing users to purchase products."""
@@ -102,11 +103,9 @@ def main():
                     ]
         best_buy = store.Store(product_list)
         start(best_buy)
-    except ValueError as e:
-        print(f"{RED}{e}{RESET}")
+    except ValueError as error_message:
+        print(f"{RED}{error_message}{RESET}")
 
 
 if __name__ == "__main__":
     main()
-
-
