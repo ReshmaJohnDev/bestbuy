@@ -1,7 +1,7 @@
-
+import sys
 import products
 import store
-import sys
+
 
 # ANSI color codes for styling
 BRIGHT_CYAN = '\033[96m'
