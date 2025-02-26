@@ -1,6 +1,7 @@
-import products
-
 class Store:
+    """Store Class will hold all the products,
+     and will allow the user to make a purchase of
+     multiple products at once."""
     def __init__(self, product_list):
         """Initiator (constructor) method."""
         self.product_list = product_list
@@ -39,6 +40,3 @@ class Store:
             if product.is_active():
                 active_product_list.append(product)
         return active_product_list
-
-
-
