@@ -27,9 +27,22 @@ class Store:
     def order(self, shopping_list):
         """Process the order , update the quantity and return total price"""
         total_price = 0
+        # Backup quantities before processing the order
         for product_index, quantity in shopping_list:
             product = self.product_list[product_index]
-            total_price += product.buy(quantity)
+            product.backup_quantity = product.quantity
+
+        # Try to process the order
+        for product_index, quantity in shopping_list:
+            product = self.product_list[product_index]
+            try:
+                total_price += product.buy(quantity)
+            except ValueError as e:
+                print(f"Error during purchase of {product.name}: {e}")
+                # Rollback all products before this point
+                for idx in range(product_index + 1):
+                    self.product_list[idx].rollback_quantity()
+                return 0
         return total_price
 
 

@@ -10,7 +10,8 @@ class Product:
         self.name = name
         self.price = price
         self.quantity = quantity
-        self.active = quantity > 0
+        self.active = quantity >= 0
+        self.backup_quantity = quantity
 
 
     def get_quantity(self):
@@ -59,10 +60,75 @@ class Product:
         if quantity <= 0:
             raise ValueError("Enter a valid quantity (must be greater than 0)")
 
-        if quantity > self.quantity:
+        elif quantity > self.quantity:
             raise ValueError("Error while making order! Quantity larger than what exists")
 
         total_price = self.price * quantity
         self.quantity -= quantity
         self.set_quantity(self.quantity)
         return total_price
+
+    def rollback_quantity(self):
+        """Rolls back the quantity to the backed-up state."""
+        self.quantity = self.backup_quantity
+        self.set_quantity(self.quantity)
+        if self.quantity > 0:  # Reactivate if there is any stock
+            self.activate()
+        else:  # Deactivate if quantity is 0
+            self.deactivate()
+
+
+class NonStockedProduct(Product):
+    def __init__(self, name, price):
+        super().__init__(name, price, 0)
+
+
+    def show(self):
+        """Overrides the show method to display 'Unlimited' for quantity."""
+        return f"{self.name}, Price: {self.price}, Quantity: Unlimited"
+
+    def get_quantity(self):
+        """Overrides get_quantity to always return 0."""
+        return 0
+
+    def buy(self, quantity):
+        if quantity <= 0:
+            raise ValueError("Enter a valid quantity (must be greater than 0)")
+        total_price = self.price * 1
+        self.quantity = 1
+        super().set_quantity(self)
+        return total_price
+
+    def is_active(self):
+        """Overrides is_active to always return True."""
+        return True
+
+class LimitedProduct(Product):
+    def __init__(self, name, price, quantity, maximum):
+        self.maximum = maximum
+        super().__init__(name, price, quantity)
+
+
+    def show(self):
+        """Overrides the show method to display 'Unlimited' for quantity."""
+        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, Limited to {self.maximum} per order!"
+
+
+    def buy(self, quantity):
+        """Overrides the buy method to update the quantity
+        when quantity is greater than maximum"""
+        if quantity <= 0:
+            raise ValueError("Enter a valid quantity (must be greater than 0)")
+        elif quantity > self.maximum:
+            raise ValueError(f"Only {self.maximum} is allowed from this prod")
+        total_price = self.price * self.quantity
+        super().set_quantity(self)
+        return total_price
+
+
+
+
+
+
+
+

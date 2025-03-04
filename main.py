@@ -1,4 +1,5 @@
 import sys
+from itertools import product
 import products
 import store
 
@@ -88,21 +89,27 @@ def get_total_products(best_buy):
 def make_order(best_buy, buy_list):
     """Processes the order and displays the total price."""
     total_price = best_buy.order(buy_list)
-    print(f"Order made! Total payment: {BRIGHT_GREEN}${total_price}{RESET}")
-
+    if total_price > 0:
+        print(f"Order made! Total payment: {BRIGHT_GREEN}${total_price}{RESET}")
+    else:
+        print(f"{RED}Order failed. No payment was processed due to above error.{RESET}")
 
 def main():
     """Initializes store products and handles user choices """
     #setup initial stock of inventory
     try:
-        product_list = [products.Product("MacBook Air M2", price=1450, quantity=100),
-                    products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                    products.Product("Google Pixel 7", price=500, quantity=250)
-                    ]
+        # setup initial stock of inventory
+        product_list =[ products.Product("MacBook Air M2", price=1450, quantity=100),
+                 products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                 products.Product("Google Pixel 7", price=500, quantity=250),
+                 products.NonStockedProduct("Windows License", price=125),
+                 products.LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
+               ]
         best_buy = store.Store(product_list)
         start(best_buy)
     except ValueError as error_message:
         print(f"{RED}{error_message}{RESET}")
+
 
 
 if __name__ == "__main__":
