@@ -8,10 +8,10 @@ class Store:
 
 
     def add_product(self, product):
-        """Adds a product to the store."""
-        if product not in self.product_list:
+        """Adds a product to the store.Checks for duplicates"""
+        if not any(p.name == product.name and p.price == product.price and p.quantity == product.quantity for p in
+                   self.product_list):
             self.product_list.append(product)
-
 
     def remove_product(self, product):
         """Remove products if it already exists in the store."""

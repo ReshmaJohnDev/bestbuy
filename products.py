@@ -1,7 +1,9 @@
+from promotions import Promotion
+
 class Product:
     """The Product class represents a specific type of
      product available in the store"""
-    def __init__(self, name, price, quantity):
+    def __init__(self, name, price, quantity, promotion = None):
         """Initiator (constructor) method."""
         if not name or price <= 0 or quantity < 0:
             raise ValueError("Enter valid input: name must be non-empty,"
@@ -10,6 +12,7 @@ class Product:
         self.name = name
         self.price = price
         self.quantity = quantity
+        self.promotion = promotion
         self.active = quantity >= 0
         self.backup_quantity = quantity
 
@@ -30,10 +33,7 @@ class Product:
 
     def is_active(self):
         """Returns True if the product is active, otherwise False."""
-        is_active = False
-        if self.active:
-            is_active = True
-        return is_active
+        return self.active
 
 
     def deactivate(self):
@@ -48,7 +48,8 @@ class Product:
 
     def show(self):
         """Returns a string that represents the product"""
-        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
+        promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else None
+        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, Promotion: {promotion_info}"
 
 
     def buy(self, quantity):
@@ -63,10 +64,17 @@ class Product:
         elif quantity > self.quantity:
             raise ValueError("Error while making order! Quantity larger than what exists")
 
-        total_price = self.price * quantity
-        self.quantity -= quantity
-        self.set_quantity(self.quantity)
+        total_price = (self.promotion.apply_promotion(self, quantity) if self.promotion else self.price * quantity)
+        self.set_quantity(self.quantity - quantity)
         return total_price
+
+
+    def get_promotion(self):
+        return self.promotion
+
+    def set_promotion(self,promotion):
+        self.promotion = promotion
+
 
     def rollback_quantity(self):
         """Rolls back the quantity to the backed-up state."""
@@ -85,23 +93,37 @@ class NonStockedProduct(Product):
 
     def show(self):
         """Overrides the show method to display 'Unlimited' for quantity."""
-        return f"{self.name}, Price: {self.price}, Quantity: Unlimited"
+        promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else ""
+        return f"{self.name}, Price: {self.price}, Quantity: Unlimited, Promotion: {promotion_info}"
+
 
     def get_quantity(self):
         """Overrides get_quantity to always return 0."""
         return 0
 
-    def buy(self, quantity):
-        if quantity <= 0:
-            raise ValueError("Enter a valid quantity (must be greater than 0)")
-        total_price = self.price * 1
-        self.quantity = 1
-        super().set_quantity(self)
-        return total_price
+
+    def set_quantity(self, quantity):
+        """Setter function for quantity. If quantity reaches 0, deactivates the product."""
+        self.activate()
+
 
     def is_active(self):
         """Overrides is_active to always return True."""
         return True
+
+
+    def buy(self, quantity):
+        """
+        Overrides buy method of parent class to update the quantity to 0
+        """
+        if quantity <= 0:
+            raise ValueError("Enter a valid quantity (must be greater than 0)")
+
+        total_price = (self.promotion.apply_promotion(self, quantity) if self.promotion else self.price * quantity)
+        self.quantity = 0
+        self.set_quantity(quantity)
+        return total_price
+
 
 class LimitedProduct(Product):
     def __init__(self, name, price, quantity, maximum):
@@ -111,7 +133,10 @@ class LimitedProduct(Product):
 
     def show(self):
         """Overrides the show method to display 'Unlimited' for quantity."""
-        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, Limited to {self.maximum} per order!"
+        promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else None
+        return (f"{self.name}, Price: {self.price},"
+                f" Limited to {self.maximum} per order!,"
+                f" Promotion: {promotion_info}")
 
 
     def buy(self, quantity):
@@ -121,14 +146,6 @@ class LimitedProduct(Product):
             raise ValueError("Enter a valid quantity (must be greater than 0)")
         elif quantity > self.maximum:
             raise ValueError(f"Only {self.maximum} is allowed from this prod")
-        total_price = self.price * self.quantity
-        super().set_quantity(self)
+        total_price = (self.promotion.apply_promotion(self, quantity) if self.promotion else self.price * quantity)
+        self.set_quantity(self.quantity - quantity)
         return total_price
-
-
-
-
-
-
-
-
