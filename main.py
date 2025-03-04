@@ -73,9 +73,7 @@ def list_products(best_buy):
     product_list = best_buy.get_all_products()
     print('_' * 10)
     for index, product in enumerate(product_list):
-        print(f"{BRIGHT_GREEN}{index + 1}{RESET}. {BRIGHT_CYAN}{product.name}{RESET},"
-              f" Price: {BRIGHT_CYAN}{product.price}{RESET},"
-              f" Quantity: {BRIGHT_CYAN}{product.quantity}{RESET}")
+        print(f"{BRIGHT_GREEN}{index + 1}{RESET}. {product.show()}")
     print('_' * 10)
     print()
 
