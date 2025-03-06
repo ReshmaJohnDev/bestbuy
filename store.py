@@ -8,10 +8,10 @@ class Store:
 
 
     def add_product(self, product):
-        """Adds a product to the store.Checks for duplicates"""
-        if not any(p.name == product.name and p.price == product.price and p.quantity == product.quantity for p in
-                   self.product_list):
+        """Adds a product to the store."""
+        if product not in self.product_list:
             self.product_list.append(product)
+
 
     def remove_product(self, product):
         """Remove products if it already exists in the store."""
@@ -27,22 +27,15 @@ class Store:
     def order(self, shopping_list):
         """Process the order , update the quantity and return total price"""
         total_price = 0
-        # Backup quantities before processing the order
+        products_to_remove = []  #
         for product_index, quantity in shopping_list:
             product = self.product_list[product_index]
-            product.backup_quantity = product.quantity
+            total_price += product.buy(quantity)
+            if product.quantity == 0:
+                products_to_remove.append(product)
 
-        # Try to process the order
-        for product_index, quantity in shopping_list:
-            product = self.product_list[product_index]
-            try:
-                total_price += product.buy(quantity)
-            except ValueError as e:
-                print(f"Error during purchase of {product.name}: {e}")
-                # Rollback all products before this point
-                for idx in range(product_index + 1):
-                    self.product_list[idx].rollback_quantity()
-                return 0
+        for product in products_to_remove:
+            self.remove_product(product)
         return total_price
 
 
