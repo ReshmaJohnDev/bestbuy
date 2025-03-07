@@ -1,4 +1,3 @@
-
 import products
 import store
 import sys
@@ -39,6 +38,13 @@ def start(best_buy):
         except ValueError :
             print(f"{RED}Please enter a valid choice{RESET}\n")
 
+        except products.InvalidQuantityError as error_message:
+            print(f"{RED}{error_message}{RESET}\n")
+
+        except products.InsufficientStockError as error_message:
+            print(f"{RED}{error_message}{RESET}\n")
+
+
 def process_order(best_buy, store_available_product_list):
     """Handles the order process, allowing users to purchase products."""
     list_products(best_buy)
@@ -67,6 +73,7 @@ def process_order(best_buy, store_available_product_list):
                   f" and amount.{RESET}\n")
     make_order(best_buy, buy_list)
 
+
 def list_products(best_buy):
     """Displays all available products"""
     product_list = best_buy.get_all_products()
@@ -78,26 +85,34 @@ def list_products(best_buy):
     print('_' * 10)
     print()
 
+
 def get_total_products(best_buy):
     """Displays the total available products in store"""
     total_quantity = best_buy.get_total_quantity()
     print(f"Total of {BRIGHT_GREEN}{total_quantity}{RESET} items in the store ")
     print()
 
+
 def make_order(best_buy, buy_list):
     """Processes the order and displays the total price."""
     total_price = best_buy.order(buy_list)
     print(f"Order made! Total payment: {BRIGHT_GREEN}${total_price}{RESET}")
+
 
 def main():
     """Initializes store products and handles user choices """
     #setup initial stock of inventory
     try:
         product_list = [products.Product("MacBook Air M2", price=1450, quantity=100),
-                    products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                    products.Product("Google Pixel 7", price=500, quantity=250)
+                        products.Product("MacBook Air M2", price=1450, quantity=100),
+                        products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                        products.Product("Google Pixel 7", price=500, quantity=250)
                     ]
-        best_buy = store.Store(product_list)
+
+        best_buy = store.Store([])
+        for product in product_list:
+            #checks for duplicates and adds products
+            best_buy.add_product(product)
         start(best_buy)
     except ValueError as error_message:
         print(f"{RED}{error_message}{RESET}")
