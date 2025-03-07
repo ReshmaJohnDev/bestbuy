@@ -1,3 +1,16 @@
+# Custom exceptions for specific error scenarios
+class InvalidQuantityError(Exception):
+    """Raised when the entered quantity is less than or equal to zero."""
+    def __init__(self):
+        super().__init__("Enter a valid quantity (must be greater than 0)")
+
+
+class InsufficientStockError(Exception):
+    """Raised when the requested quantity is more than available stock."""
+    def __init__(self):
+        super().__init__("Error while making order! Quantity larger than what exists")
+
+
 class Product:
     """The Product class represents a specific type of
      product available in the store"""
@@ -10,7 +23,8 @@ class Product:
         self.name = name
         self.price = price
         self.quantity = quantity
-        self.active = quantity > 0
+        self.active = quantity >= 0
+        self.backup_quantity = quantity
 
     def get_quantity(self):
         """Returns the quantity (int)"""
@@ -26,10 +40,7 @@ class Product:
 
     def is_active(self):
         """Returns True if the product is active, otherwise False."""
-        is_active = False
-        if self.active:
-            is_active = True
-        return is_active
+        return self.active
 
     def deactivate(self):
         """Deactivates the product."""
@@ -50,12 +61,21 @@ class Product:
         Updates the quantity of the product.
         """
         if quantity <= 0:
-            raise ValueError("Enter a valid quantity (must be greater than 0)")
+            raise InvalidQuantityError()
 
         if quantity > self.quantity:
-            raise ValueError("Error while making order! Quantity larger than what exists")
+            raise InsufficientStockError()
 
         total_price = self.price * quantity
         self.quantity -= quantity
         self.set_quantity(self.quantity)
         return total_price
+
+    def rollback_quantity(self):
+        """Rolls back the quantity to the backed-up state."""
+        self.quantity = self.backup_quantity
+        self.set_quantity(self.quantity)
+        if self.quantity > 0:  # Reactivate if there is any stock
+            self.activate()
+        else:  # Deactivate if quantity is 0
+            self.deactivate()
